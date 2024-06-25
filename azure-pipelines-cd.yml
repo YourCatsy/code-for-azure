@@ -1,10 +1,35 @@
 trigger:
-  - master  # Триггер на коммиты в ветку master
+  - master  # Trigger on commits to the master branch
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
+  # Step 1: Checkout the code from GitHub
+  - checkout: self
+    clean: true
+
+  # Step 2: Build the project (assuming .NET Core project for this example)
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'build'
+      projects: '**/*.csproj'
+
+  # Step 3: Publish the project (create the deployment package)
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'publish'
+      projects: '**/*.csproj'
+      arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)'
+
+  # Step 4: Publish the build artifacts
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'  # Path to publish
+      ArtifactName: 'drop'  # Name of the artifact
+      publishLocation: 'Container'
+
+  # Step 5: Deploy the artifact to Azure Web App
   - task: AzureWebApp@1
     inputs:
       azureSubscription: 'web-cicd'  # Use the correct service connection name
