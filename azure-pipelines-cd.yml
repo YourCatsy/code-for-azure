@@ -1,0 +1,13 @@
+# CD Pipeline - Deploys application after successful tests
+
+trigger:
+- master  # Триггер на коммиты в ветку master
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- script: echo Deploying to Azure App Service...
+  displayName: 'Deploy to Azure App Service'
+  # Добавьте здесь шаги для деплоя приложения на Azure App Service
+  # Например, используйте Azure CLI или Azure DevOps ресурсы для деплоя
