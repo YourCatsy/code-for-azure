@@ -1,5 +1,5 @@
 trigger:
-  - master
+  - master  # Триггер на коммиты в ветку master
 
 pool:
   vmImage: ubuntu-latest
@@ -7,7 +7,7 @@ pool:
 steps:
   - task: AzureWebApp@1
     inputs:
-      azureSubscription: 'web-cicd'  # Replace with the correct name of your Azure subscription
+      azureSubscription: 'web-cicd'  # Use the correct service connection name
+      appType: 'webApp'  # Specify the application type
       appName: 'web-cicd'  # Replace with your Azure App Service name
-      package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
-      enableCustomDeployment: true
+      package: '$(Build.ArtifactStagingDirectory)/**/*.zip'  # Path to the deployment package
