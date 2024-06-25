@@ -9,27 +9,40 @@ steps:
   - checkout: self
     clean: true
 
-  # Step 2: Build the project (assuming .NET Core project for this example)
+  # Step 2: Use the specific .NET SDK version (adjust the version as needed)
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '6.x.x'  # Specify the desired .NET SDK version (e.g., 6.x.x for .NET 6)
+      installationPath: $(Agent.ToolsDirectory)/dotnet
+
+  # Step 3: Restore dependencies
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'  # Ensure this pattern matches your project files
+
+  # Step 4: Build the project
   - task: DotNetCoreCLI@2
     inputs:
       command: 'build'
-      projects: '**/*.csproj'
+      projects: '**/*.csproj'  # Ensure this pattern matches your project files
 
-  # Step 3: Publish the project (create the deployment package)
+  # Step 5: Publish the project (create the deployment package)
   - task: DotNetCoreCLI@2
     inputs:
       command: 'publish'
-      projects: '**/*.csproj'
+      projects: '**/*.csproj'  # Ensure this pattern matches your project files
       arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)'
 
-  # Step 4: Publish the build artifacts
+  # Step 6: Publish the build artifacts
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'  # Path to publish
       ArtifactName: 'drop'  # Name of the artifact
       publishLocation: 'Container'
 
-  # Step 5: Deploy the artifact to Azure Web App
+  # Step 7: Deploy the artifact to Azure Web App
   - task: AzureWebApp@1
     inputs:
       azureSubscription: 'web-cicd'  # Use the correct service connection name
