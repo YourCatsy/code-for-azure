@@ -1,5 +1,5 @@
 trigger:
-- master
+- main
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -19,13 +19,9 @@ steps:
     python -m unittest discover -s tests
   displayName: 'Run tests'
 
-- task: ArchiveFiles@2
-  inputs:
-    rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-    replaceExistingArchive: true
+- script: |
+    zip -r $(Build.ArtifactStagingDirectory)/myapp.zip *
+  displayName: 'Archive files'
 
 - task: PublishBuildArtifacts@1
   inputs:
@@ -33,16 +29,15 @@ steps:
     ArtifactName: 'drop'
     publishLocation: 'Container'
 
-- task: DownloadBuildArtifacts@0
-  inputs:
-    buildType: 'current'
-    downloadType: 'single'
-    artifactName: 'drop'
-    downloadPath: '$(System.ArtifactsDirectory)'
-
 - task: AzureWebApp@1
   inputs:
     azureSubscription: 'web-cicd'
     appType: webAppLinux
     appName: 'web-cicd'
-    package: '$(System.ArtifactsDirectory)/drop/$(Build.BuildId).zip'
+    package: '$(Build.ArtifactStagingDirectory)/myapp.zip'
+
+
+
+
+
+
