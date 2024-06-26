@@ -1,5 +1,5 @@
 trigger:
-- main  # Ветка, при коммите в которую будет запускаться пайплайн
+- master  
 
 pool:
   vmImage: 'ubuntu-latest'
