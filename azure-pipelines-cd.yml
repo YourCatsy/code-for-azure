@@ -1,47 +1,27 @@
 trigger:
-  - master  # Триггер на коммиты в ветку master
+- main  # Ветка, при коммите в которую будет запускаться пайплайн
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
 steps:
-  # Step 1: Checkout the code from GitHub
-  - checkout: self
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.x'
+    addToPath: true
 
-  # Step 2: Setup Python environment
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '3.x'  # Укажите нужную версию Python (например, 3.x)
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install dependencies'
 
-  # Step 3: Install dependencies
-  - script: |
-      python -m pip install --upgrade pip
-      pip install -r requirements.txt
-    displayName: 'Install dependencies'
+- script: |
+    python -m unittest discover -s tests
+  displayName: 'Run tests'
 
-  # Step 4: Run tests (если у вас есть тесты)
-  - script: |
-      python -m unittest discover -s tests
-    displayName: 'Run tests'
-    continueOnError: true  # Этот параметр позволит продолжить выполнение даже при ошибках в тестах
-
-  # Step 5: Create a zip package for deployment
-  - script: |
-      mkdir -p $(Build.ArtifactStagingDirectory)
-      zip -r $(Build.ArtifactStagingDirectory)/app.zip .
-    displayName: 'Create zip package'
-
-  # Step 6: Publish the build artifacts
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'  # Путь для публикации
-      ArtifactName: 'drop'
-      publishLocation: 'Container'
-
-  # Step 7: Deploy the artifact to Azure Web App
-  - task: AzureWebApp@1
-    inputs:
-      azureSubscription: 'web-cicd'  # Используйте правильное имя подключения к Azure
-      appType: 'webAppLinux'  # Укажите тип приложения (webAppLinux для Linux)
-      appName: 'web-cicd'  # Замените на имя вашего Azure App Service
-      package: '$(Build.ArtifactStagingDirectory)/app.zip'  # Путь к созданному пакету
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'web-cicd'
+    appType: webAppLinux
+    appName: 'web-cicd'
+    package: $(System.DefaultWorkingDirectory)/**/*.zip
