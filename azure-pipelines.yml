@@ -1,14 +1,20 @@
-# CI Pipeline - Runs tests on every commit
-
 trigger:
-- master  # Триггер на коммиты в ветку master
+- main  # Ветка, при коммите в которую будет запускаться пайплайн
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
 steps:
-- script: echo Running tests...
-  displayName: 'Run Tests'
-  # Добавьте здесь шаги для запуска ваших тестов, например:
-  # - script: pytest  # пример для Python с использованием pytest
-  #   displayName: 'Run Pytest'
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.x'
+    addToPath: true
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install dependencies'
+
+- script: |
+    python -m unittest discover -s tests
+  displayName: 'Run tests'
