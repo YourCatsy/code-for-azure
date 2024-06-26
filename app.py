@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return 'Hello, World! And everyone you dont'
+    return 'Hello, World! '
 
 @app.route('/factorial/<int:n>')
 def factorial_route(n):
